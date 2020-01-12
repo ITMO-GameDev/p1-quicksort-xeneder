@@ -10,7 +10,7 @@ public:
         Array<T>& array;
         int position;
     public:
-        explicit Iterator(Array<T>& array): array(array), position(0) {}
+        explicit Iterator(Array<T>& array) : array(array), position(0) {}
 
         const T& get() const {
           return this->array[this->position];
@@ -27,6 +27,7 @@ public:
         void remove() {
           this->array.remove(this->position);
         }
+
 
         void next() {
           if (this->position > this->array.getSize())
@@ -47,20 +48,19 @@ public:
         }
 
         bool hasNext() const {
-          return this->position < this->array.getSize();
+          return this->position < this->array.getSize() - 1;
         }
 
-        bool hasPrev() const
-        {
+        bool hasPrev() const {
           return this->position > 0;
         }
     };
 
-    Array():pointer(nullptr), capacity(8), size(0) {
+    Array() : pointer(nullptr), capacity(8), size(0) {
       this->pointer = new T[capacity];
     }
 
-    Array(int capacity): pointer(nullptr), capacity(capacity), size(0) {
+    Array(int capacity) : pointer(nullptr), capacity(capacity), size(0) {
       if (capacity < 0)
         throw std::runtime_error("Invalid capacity");
       this->pointer = new T[capacity];
@@ -70,16 +70,16 @@ public:
       this->pointer = new T[other.capacity];
       std::memcpy(this->pointer, other.pointer, other.size * sizeof(T));
 
-      capacity = other.capacity;
-      size = other.size;
+      this->capacity = other.capacity;
+      this->size = other.size;
     }
 
     Array(Array&& other) {
       this->pointer = new T[other.capacity];
       std::memmove(this->pointer, other.pointer, other.size * sizeof(T));
 
-      capacity = other.capacity;
-      size = other.size;
+      this->capacity = other.capacity;
+      this->size = other.size;
 
       other.pointer = nullptr;
       other.size = 0;
@@ -115,12 +115,14 @@ public:
       if (index > this->size || index < 0)
         throw std::range_error("Index out of bounds");
 
-      if (this->capacity == this->size)
+      this->size++;
+
+      if (this->capacity > this->size)
         this->expandStorage();
 
-      this->pointer[index] = value;
+      std::memmove(this->pointer + index + 1, this->pointer + index, (this->size - index - 1) * sizeof(T));
 
-      this->size++;
+      this->pointer[index] = value;
     }
 
     void remove(int index) {
@@ -144,7 +146,7 @@ public:
       return std::move(this->pointer[index]);
     }
 
-    Array& operator =(const Array& other) {
+    Array& operator=(const Array& other) {
       if (&other == this)
         return *this;
 
@@ -153,21 +155,21 @@ public:
       this->pointer = new T[other.capacity];
       std::memcpy(this->pointer, other.pointer, this->size * sizeof(T));
 
-      capacity = other.capacity;
-      size = other.size;
+      this->capacity = other.capacity;
+      this->size = other.size;
 
       return *this;
     }
 
-    Array& operator =(Array&& other) noexcept {
+    Array& operator=(Array&& other) noexcept {
       if (this != &other) {
         delete[] this->pointer;
-        this->pointer = new T[other.capacity];
 
+        this->pointer = new T[other.capacity];
         std::memcpy(this->pointer, other.pointer, other.size * sizeof(T));
 
-        capacity = other.capacity;
-        size = other.size;
+        this->capacity = other.capacity;
+        this->size = other.size;
 
         other.pointer = nullptr;
         other.size = 0;

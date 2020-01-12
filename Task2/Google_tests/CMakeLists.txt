@@ -12,5 +12,5 @@ include_directories(Google_tests/lib/googletest/googletest/include Google_tests/
 
 # 'Google_Tests_run' is the target name
 # 'test1.cpp tests2.cpp' are source files with tests
-add_executable(Google_Tests_run tests2.cpp main.cpp ../array.h)
+add_executable(Google_Tests_run tests2.cpp main.cpp ../array.h ../list.h)
 target_link_libraries(Google_Tests_run gtest gtest_main)
